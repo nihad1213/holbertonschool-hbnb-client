@@ -2,6 +2,7 @@
 
 """Importing Modules and Models"""
 from flask import Flask
+from flask_cors import CORS
 from db import db
 from dotenv import load_dotenv
 import os
@@ -11,6 +12,9 @@ load_dotenv()
 
 # Creating Flask App
 app = Flask(__name__)
+
+# Configure CORS
+CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins (for development)
 
 # Configure JWT
 app.config['JWT_SECRET_KEY'] = 'super-secret'  # Change this to a secure secret key
@@ -66,6 +70,21 @@ app.register_blueprint(reviewRoutes)
 @app.route('/')
 def index():
     return 'Index'
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'error': 'Missing fields'}), 400
+
+    # Authenticate user here
+    # If successful, return token
+    # Otherwise, return an appropriate error
+
+    return jsonify({'access_token': 'your_token_here'})
 
 if __name__ == '__main__':
     with app.app_context():
