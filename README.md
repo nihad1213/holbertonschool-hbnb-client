@@ -116,3 +116,82 @@ document.getElementById('country-filter').addEventListener('change', (event) => 
     });
 });
 ```
+## Task 3: Implementation - Place Details
+Get place ID from URL:
+```bash
+function getPlaceIdFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id');
+}
+```
+Fetch place details:
+```bash
+async function fetchPlaceDetails(token, placeId) {
+    const response = await fetch(`https://your-api-url/places/${placeId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const place = await response.json();
+    displayPlaceDetails(place);
+}
+```
+Display place details:
+```bash
+function displayPlaceDetails(place) {
+    const placeDetails = document.getElementById('place-details');
+    placeDetails.innerHTML = `
+        <img src="${place.image_url}" class="place-image-large">
+        <h1>${place.name}</h1>
+        <p>${place.description}</p>
+        <p>${place.location}</p>
+        <p>${place.price_per_night}</p>
+    `;
+}
+```
+
+## Task 4: Implementation - Add Review
+Check user authentication and redirect if not authenticated:
+```bash
+function checkAuthentication() {
+    const token = getCookie('token');
+    if (!token) {
+        window.location.href = 'index.html';
+    }
+    return token;
+}
+```
+Setup event listener for review form:
+```bash
+document.addEventListener('DOMContentLoaded', () => {
+    const reviewForm = document.getElementById('review-form');
+    const token = checkAuthentication();
+    const placeId = getPlaceIdFromURL();
+
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const reviewText = document.getElementById('review-text').value;
+            await submitReview(token, placeId, reviewText);
+        });
+    }
+});
+```
+
+Submit review:
+```bash
+async function submitReview(token, placeId, reviewText) {
+    const response = await fetch('https://your-api-url/reviews', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ place_id: placeId, review: reviewText })
+    });
+    if (response.ok) {
+        alert('Review submitted successfully!');
+        document.getElementById('review-form').reset();
+    } else {
+        alert('Failed to submit review');
+    }
+}
+```
