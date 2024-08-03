@@ -64,7 +64,7 @@ function displayPlaces(places) {
         // Fetch city and country information dynamically (assuming you have endpoints for these)
         // You can modify the code if you have the city and country data already in the place object
         const city = getCityNameById(place.city_id); // Implement this function according to your setup
-        const country = getCountryNameByCityId(place.city_id); // Implement this function according to your setup
+        const country = 'Country Name'; // Replace with static or fetched country name if needed
 
         placeCard.innerHTML = `
             <h2>${place.name}</h2>
@@ -73,7 +73,7 @@ function displayPlaces(places) {
             <p>Number of rooms: ${place.number_of_rooms}</p>
             <p>Number of bathrooms: ${place.number_of_bathrooms}</p>
             <p>Max guests: ${place.max_guests}</p>
-            <a href="places.html" class="card-button">View Details</a>
+            <a href="places.html?place_id=${place.id}" class="card-button">View Details</a>
         `;
 
         placesList.appendChild(placeCard);
@@ -82,7 +82,9 @@ function displayPlaces(places) {
 
 function populateCountryFilter(places) {
     const countryFilter = document.getElementById('country-filter');
-    const countries = [...new Set(places.map(place => getCountryNameByCityId(place.city_id)))];
+    const countries = [...new Set(places.map(place => 'Country Name'))]; // Replace with actual country names if available
+
+    countryFilter.innerHTML = '<option value="">Select a country</option>'; // Add default option
 
     countries.forEach(country => {
         const option = document.createElement('option');
@@ -106,13 +108,18 @@ function filterPlacesByCountry(event) {
     });
 }
 
-// Implement these functions to get city and country names based on IDs
-function getCityNameById(city_id) {
-    // Implement this function to return the city name based on the city_id
-    // This can be a static lookup, an API call, or a database query
-}
-
-function getCountryNameByCityId(city_id) {
-    // Implement this function to return the country name based on the city_id
-    // This can be a static lookup, an API call, or a database query
+async function getCityNameById(city_id) {
+    try {
+        const response = await fetch(`http://127.0.0.1:5000/cities/${city_id}`);
+        if (response.ok) {
+            const city = await response.json();
+            return city.name; // Adjust according to your API response
+        } else {
+            console.error('Failed to fetch city:', response.statusText);
+            return 'Unknown City';
+        }
+    } catch (error) {
+        console.error('Error fetching city:', error);
+        return 'Unknown City';
+    }
 }
